@@ -5,7 +5,8 @@
 # installs to disk with Calamares, letting you pick the desktop you want
 # on the installed system.
 #
-# Requires: live-build, xorriso, rsync, and root (or run with sudo).
+# Requires: live-build, xorriso, rsync, and sudo.  The script re-runs
+# itself as root, because live-build needs it.
 # Mirror: http://mirror.linux.org.au/debian (override with SIDSPIN_MIRROR).
 
 set -euo pipefail
@@ -19,6 +20,14 @@ OUTPUT="$BUILD/sidspin-amd64.iso"
 log()  { echo "[sidspin] $*"; }
 die()  { echo "[sidspin] ERROR: $*" >&2; exit 1; }
 
+# live-build needs root; re-run the whole script as root so that every
+# file it creates belongs to the same user.
+if [ "$(id -u)" -ne 0 ]; then
+    command -v sudo >/dev/null || die "run this script as root (it needs sudo to re-exec itself)"
+    log "re-running as root"
+    exec sudo --preserve-env=SIDSPIN_MIRROR "$0" "$@"
+fi
+
 command -v lb      >/dev/null || die "live-build is not installed"
 command -v rsync   >/dev/null || die "rsync is not installed"
 command -v xorriso >/dev/null || die "xorriso is not installed"
@@ -27,7 +36,7 @@ command -v xorriso >/dev/null || die "xorriso is not installed"
 # An interrupted build leaves mounts behind in build/chroot.
 for m in dev/pts dev proc sys; do
     if mountpoint -q "$BUILD/chroot/$m" 2>/dev/null; then
-        sudo umount -R "$BUILD/chroot/$m" 2>/dev/null || true
+        umount -R "$BUILD/chroot/$m" 2>/dev/null || true
     fi
 done
 
@@ -39,7 +48,7 @@ mkdir -p "$BUILD"
 # Live mode: the ISO ships a full desktop session (KDE Plasma).
 cd "$BUILD"
 log "configuring live-build (sid, live desktop, amd64)"
-sudo lb config \
+lb config \
     --mode debian \
     --distribution sid \
     --architecture amd64 \
@@ -91,7 +100,7 @@ fi
 
 # ------------------------------------------------------------------- build
 log "building live ISO (bootstraps sid, this takes a while)"
-sudo lb build 2>&1 | tail -5
+lb build 2>&1 | tail -5
 
 ISO="$BUILD/live-image-amd64.hybrid.iso"
 [ -f "$ISO" ] || die "lb build produced no ISO"

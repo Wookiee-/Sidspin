@@ -37,8 +37,11 @@ config/hooks/live/                    required for the normal hooks to run
 ## Build
 
 ```bash
-cd /home/tagmanpro/Github/Sidspin && sudo ./scripts/build.sh
+cd /home/tagmanpro/Github/Sidspin && ./scripts/build.sh
 ```
+
+The script re-runs itself as root (live-build needs it), so `sudo
+./scripts/build.sh` works too.
 
 Output: `build/sidspin-amd64.iso`
 
