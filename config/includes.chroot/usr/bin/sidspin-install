@@ -1,0 +1,24 @@
+#!/bin/sh
+# SidSpin — start the Calamares installer from the live session.
+#
+# Calamares needs root privileges and access to the X server.  The live
+# session gives the live user passwordless polkit access (see live-config's
+# 1080-policykit component), so pkexec does not prompt for a password.
+
+set -u
+
+# live-build leaves an /etc/fstab behind that points at the live medium and
+# confuses the partition module.  Move it aside for the duration of the
+# install and put it back afterwards.
+if [ -f /etc/fstab ] && [ ! -e /etc/fstab.sidspin-orig ]; then
+    mv /etc/fstab /etc/fstab.sidspin-orig
+fi
+
+# Let root (which runs Calamares) reach the X server.
+xhost +si:localuser:root 2>/dev/null
+pkexec calamares
+xhost -si:localuser:root 2>/dev/null
+
+if [ -e /etc/fstab.sidspin-orig ]; then
+    mv /etc/fstab.sidspin-orig /etc/fstab
+fi

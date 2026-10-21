@@ -1,0 +1,10 @@
+#!/bin/bash
+# Live hook: no-op.
+#
+# live-build only runs config/hooks/normal/*.hook.chroot when there is at
+# least one hook in config/hooks/live/ as well, so this file exists to
+# keep the normal hooks running.
+
+set -e
+
+echo "sidspin: live hook (no-op)"

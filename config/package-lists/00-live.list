@@ -1,0 +1,45 @@
+# SidSpin live session: Debian sid + minimal KDE Plasma.
+#
+# Flat file - live-build ignores package lists in subdirectories.
+# Everything here ends up in the ISO's squashfs, which is also what
+# Calamares copies to the disk when installing (unpackfs).
+
+# --- Live session infrastructure -------------------------------------------
+live-boot
+live-config
+live-config-systemd
+user-setup
+sudo
+policykit-1
+
+# --- KDE Plasma (the desktop you land in) ----------------------------------
+# kde-plasma-desktop pulls in kde-baseapps (dolphin, konsole, ...),
+# plasma-desktop and plasma-workspace.
+kde-plasma-desktop
+kwin-x11
+sddm
+xorg
+plasma-nm
+xdg-desktop-portal-kde
+
+# --- Minimal applications --------------------------------------------------
+firefox-esr
+
+# --- Networking ------------------------------------------------------------
+network-manager
+network-manager-l10n
+iwd
+wpasupplicant
+
+# --- Boot splash -----------------------------------------------------------
+plymouth
+plymouth-themes
+plymouth-x11
+
+# --- Fonts -----------------------------------------------------------------
+fonts-dejavu-core
+fonts-liberation
+fonts-noto-color-emoji
+
+# --- Locales ---------------------------------------------------------------
+locales

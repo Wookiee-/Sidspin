@@ -1,0 +1,23 @@
+#!/bin/sh
+# SidSpin — put the "Install SidSpin" shortcut on the live desktop.
+#
+# Runs from an XDG autostart entry when the live session starts, at which
+# point the live user (and its home directory) exists.
+
+set -u
+
+DESKTOP_DIR="$(xdg-user-dir DESKTOP 2>/dev/null || true)"
+[ -n "$DESKTOP_DIR" ] || DESKTOP_DIR="$HOME/Desktop"
+
+mkdir -p "$DESKTOP_DIR"
+
+ICON="$DESKTOP_DIR/sidspin-install.desktop"
+
+if [ ! -e "$ICON" ]; then
+    cp /usr/share/applications/sidspin-install.desktop "$ICON" 2>/dev/null || exit 0
+    chmod +x "$ICON"
+fi
+
+# Make sure Plasma treats the launcher as a trusted desktop file.
+gio set "$ICON" metadata::trusted true 2>/dev/null || true
+gio set "$ICON" metadata::show 2>/dev/null || true

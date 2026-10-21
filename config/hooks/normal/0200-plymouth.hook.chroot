@@ -1,0 +1,16 @@
+#!/bin/bash
+# Chroot hook: Debian's "spinfinity" Plymouth splash.
+
+set -e
+
+mkdir -p /etc/plymouth
+echo "PLYMOUTH_THEME_NAME=spinfinity" > /etc/plymouth/plymouthd.defaults
+
+if [ -d /usr/share/plymouth/themes/spinfinity ]; then
+    ln -sf /usr/share/plymouth/themes/spinfinity/spinfinity.plymouth \
+        /etc/alternatives/default.plymouth 2>/dev/null || true
+fi
+
+update-initramfs -u 2>/dev/null || true
+
+echo "sidspin: plymouth theme set to spinfinity"

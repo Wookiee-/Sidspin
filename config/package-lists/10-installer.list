@@ -1,0 +1,18 @@
+# Tools the Calamares installer needs in the live session.
+# Flat file (no subdir) - sid's live-build ignores subdir lists.
+
+# Installer (Calamares) and its Debian configuration set.
+calamares
+calamares-settings-debian
+
+# Partitioning / filesystem tools used by the partition module.
+parted
+gdisk
+dosfstools
+e2fsprogs
+btrfs-progs
+f2fs-tools
+
+# udev, needed so the installer sees disks in the live session.
+udisks2
+udev

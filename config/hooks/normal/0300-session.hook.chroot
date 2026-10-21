@@ -1,0 +1,28 @@
+#!/bin/bash
+# Chroot hook: make sure the SidSpin helper scripts are executable and
+# that the live session's display manager is set up.
+
+set -e
+
+chmod 0755 /usr/bin/sidspin-install \
+           /usr/bin/sidspin-install-de \
+           /usr/bin/sidspin-desktop-icon 2>/dev/null || true
+
+# SDDM needs to be enabled for the live session to start.
+systemctl enable sddm.service 2>/dev/null || true
+
+# Let the live user run the installer without a password prompt.
+mkdir -p /usr/share/polkit-1/rules.d
+cat > /usr/share/polkit-1/rules.d/sidspin-live.rules <<'EOF'
+// The live session user may start the installer without a password.
+polkit.addRule(function(action, subject) {
+	if (subject.local &&
+		subject.active &&
+		subject.user === "user" &&
+		subject.isInGroup("sudo")) {
+		return polkit.Result.YES;
+	}
+});
+EOF
+
+echo "sidspin: helper scripts and polkit rule in place"

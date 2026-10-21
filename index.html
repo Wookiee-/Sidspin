@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SidSpin — Debian Sid Net Installer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --sid-red: #d70a53;
+            --sid-dark: #1a1a1a;
+            --sid-bg: #0f0f0f;
+            --sid-card: #1a1a1a;
+            --sid-text: #e0e0e0;
+            --sid-muted: #888;
+            --sid-accent: #6c8ebf;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--sid-bg);
+            color: var(--sid-text);
+            line-height: 1.6;
+        }
+        a { color: var(--sid-accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+        /* Header */
+        header {
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--sid-text);
+        }
+        .logo span { color: var(--sid-red); }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--sid-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .nav-links a:hover { color: var(--sid-text); }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0 90px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        .hero h1 span { color: var(--sid-red); }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--sid-muted);
+            max-width: 640px;
+            margin: 0 auto 32px;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary {
+            background: var(--sid-red);
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 14px rgba(215, 10, 83, 0.35);
+        }
+        .btn-primary:hover { box-shadow: 0 6px 20px rgba(215, 10, 83, 0.45); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--sid-text);
+            border: 1px solid #444;
+        }
+        .btn-secondary:hover { border-color: #666; }
+
+        /* Section headers */
+        .section { padding: 80px 0; }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: var(--sid-muted);
+            margin-bottom: 56px;
+            font-size: 1.05rem;
+        }
+
+        /* Features grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 28px;
+        }
+        .feature-card {
+            background: var(--sid-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 32px 26px;
+            transition: border-color 0.2s;
+        }
+        .feature-card:hover { border-color: #444; }
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 18px;
+            display: block;
+        }
+        .feature-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            font-size: 0.95rem;
+            color: var(--sid-muted);
+            line-height: 1.55;
+        }
+
+        /* Variants */
+        .variants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .variant-card {
+            background: var(--sid-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 32px 26px;
+        }
+        .variant-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .variant-card h3 span { color: var(--sid-red); }
+        .variant-card p {
+            color: var(--sid-muted);
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+        }
+        .variant-card .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            font-size: 0.78rem;
+            background: #242424;
+            color: var(--sid-accent);
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #333;
+        }
+
+        /* Installation */
+        .install {
+            background: #161616;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 48px 40px;
+            margin-top: 32px;
+        }
+        .install h3 { font-size: 1.3rem; margin-bottom: 20px; }
+        .install ol {
+            margin-left: 22px;
+            color: var(--sid-muted);
+        }
+        .install li { margin-bottom: 12px; font-size: 0.95rem; }
+        .install code {
+            background: #0a0a0a;
+            color: var(--sid-accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Specs */
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+            background: var(--sid-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 40px 32px;
+        }
+        .spec-item { text-align: center; }
+        .spec-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--sid-text);
+        }
+        .spec-label {
+            font-size: 0.85rem;
+            color: var(--sid-muted);
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        footer {
+            border-top: 1px solid #2a2a2a;
+            padding: 48px 0;
+            text-align: center;
+            color: var(--sid-muted);
+            font-size: 0.9rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container nav">
+        <div class="logo">Sid<span>Spin</span></div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#variants">Desktops</a></li>
+            <li><a href="#install">Install</a></li>
+            <li><a href="https://github.com/Wookiee-/Sidspin" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <h1>Sid<span>Spin</span></h1>
+        <p>A Debian <b>sid</b> live ISO that boots into a minimal <b>KDE Plasma</b> session and installs to your disk with <b>Calamares</b> — where you pick the desktop you actually want.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary" href="#install">Download ISO</a>
+            <a class="btn btn-secondary" href="#features">Features</a>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="features">
+    <div class="container">
+        <h2 class="section-title">Features</h2>
+        <p class="section-subtitle">A real live desktop you can try before you commit, with a full graphical installer that puts it on your disk.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🖥️</span>
+                <h3>Minimal KDE Plasma</h3>
+                <p>The ISO boots straight into a clean Plasma session: Dolphin, Konsole, Firefox ESR and not much else. Nothing you do in the live session touches your disk.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📦</span>
+                <h3>Calamares installer</h3>
+                <p>Double-click <b>Install SidSpin</b> on the desktop. Partition, create your user, and the installer copies the system to disk with GRUB.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🎛️</span>
+                <h3>Pick your desktop</h3>
+                <p>The installer asks which desktop you want on the installed machine — KDE Plasma, GNOME, XFCE, MATE, LXQt or Cinnamon — and configures the display manager for you.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🌀</span>
+                <h3>Plymouth spinfinity</h3>
+                <p>Debian's spinning-logo Plymouth theme as the boot splash, in the live image and in the installed system.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🐧</span>
+                <p><b>Based on sid</b> — tracks Debian unstable. Built with live-build, installed with Calamares.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔒</span>
+                <p><b>Safe by default</b> — automatic partitioning, LUKS encryption, and nothing is written before you confirm.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="variants">
+    <div class="container">
+        <h2 class="section-title">Desktops</h2>
+        <p class="section-subtitle">The live image boots into KDE Plasma. During the installation you choose which desktop ends up on your disk.</p>
+        <div class="variants-grid">
+            <div class="variant-card">
+                <h3>KDE Plasma <span>default</span></h3>
+                <p>The live session, and the default on the installed system.</p>
+                <div class="tags">
+                    <span class="tag">kde-plasma-desktop</span>
+                    <span class="tag">kwin-x11</span>
+                    <span class="tag">sddm</span>
+                </div>
+            </div>
+            <div class="variant-card">
+                <h3>GNOME <span>Desktop</span></h3>
+                <p>Activities, a large app suite, and GDM3.</p>
+                <div class="tags">
+                    <span class="tag">task-gnome-desktop</span>
+                    <span class="tag">gdm3</span>
+                </div>
+            </div>
+            <div class="variant-card">
+                <h3>XFCE <span>Desktop</span></h3>
+                <p>Lightweight and quick on older hardware, with LightDM.</p>
+                <div class="tags">
+                    <span class="tag">task-xfce-desktop</span>
+                    <span class="tag">lightdm</span>
+                </div>
+            </div>
+            <div class="variant-card">
+                <h3>MATE <span>Desktop</span></h3>
+                <p>A classic layout with modest resource use.</p>
+                <div class="tags">
+                    <span class="tag">task-mate-desktop</span>
+                    <span class="tag">lightdm</span>
+                </div>
+            </div>
+            <div class="variant-card">
+                <h3>LXQt <span>Desktop</span></h3>
+                <p>A very light Qt desktop that starts fast.</p>
+                <div class="tags">
+                    <span class="tag">task-lxqt-desktop</span>
+                    <span class="tag">sddm</span>
+                </div>
+            </div>
+            <div class="variant-card">
+                <h3>Cinnamon <span>Desktop</span></h3>
+                <p>A traditional panel and menu, with LightDM.</p>
+                <div class="tags">
+                    <span class="tag">task-cinnamon-desktop</span>
+                    <span class="tag">lightdm</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="install">
+    <div class="container">
+        <h2 class="section-title">Installation</h2>
+        <p class="section-subtitle">Write the ISO to USB, boot it, and install from the live desktop.</p>
+        <div class="install">
+            <h3>1. Write to USB</h3>
+            <p>Replace <code>/dev/sdX</code> with your USB device (be careful!):</p>
+            <pre style="background:#0a0a0a;padding:16px;border-radius:6px;overflow-x:auto;margin:16px 0;font-size:0.9rem;line-height:1.5;">
+sudo dd if=sidspin-amd64.iso of=/dev/sdX bs=4M status=progress conv=fdatasync</pre>
+            <h3>2. Boot</h3>
+            <p>Boot from the USB. The live session starts and logs you into a minimal KDE Plasma desktop as the user <code>user</code>.</p>
+            <h3>3. Install</h3>
+            <p>Double-click the <b>Install SidSpin</b> icon on the desktop. Calamares walks you through language, keyboard, partitioning and your user account.</p>
+            <h3>4. Choose a desktop</h3>
+            <p>On the <b>Desktop environment</b> page pick the desktop you want — KDE Plasma, GNOME, XFCE, MATE, LXQt or Cinnamon. It is installed from <code>http://mirror.linux.org.au/debian</code>, so keep the network connected.</p>
+        </div>
+
+        <div class="specs">
+            <div class="spec-item">
+                <div class="spec-value">KDE Plasma</div>
+                <div class="spec-label">Live desktop</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">sid</div>
+                <div class="spec-label">Distribution</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">Calamares</div>
+                <div class="spec-label">Installer</div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-value">spinfinity</div>
+                <div class="spec-label">Plymouth theme</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-links">
+            <a href="https://github.com/Wookiee-/Sidspin" target="_blank" rel="noopener">Source on GitHub</a>
+            <a href="https://github.com/Wookiee-/Sidspin/issues">Issues</a>
+            <a href="https://github.com/Wookiee-/Sidspin">Contributing</a>
+        </div>
+        <p>SidSpin — a community live ISO for Debian sid. Not affiliated with Debian or the Calamares project.</p>
+    </div>
+</footer>
+
+</body>
+</html>

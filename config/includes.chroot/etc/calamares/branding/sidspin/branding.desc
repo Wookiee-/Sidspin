@@ -1,0 +1,39 @@
+---
+componentName:   sidspin
+welcomeStyleCalamares: true
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 800px,580px
+windowPlacement: center
+
+strings:
+    productName:         SidSpin
+    shortProductName:    SidSpin
+    version:             1.0
+    shortVersion:        1.0
+    versionedName:       SidSpin 1.0
+    shortVersionedName:  SidSpin 1.0
+    bootloaderEntryName: SidSpin
+    productUrl:          https://github.com/Wookiee-/Sidspin
+    supportUrl:          https://github.com/Wookiee-/Sidspin/issues
+    knownIssuesUrl:      https://github.com/Wookiee-/Sidspin/issues
+    releaseNotesUrl:     https://github.com/Wookiee-/Sidspin/releases
+    donateUrl:           https://github.com/Wookiee-/Sidspin
+
+sidebar: widget
+navigation: widget
+
+images:
+    productLogo:         ""
+    productIcon:         ""
+    productWelcome:      ""
+
+slideshow:               "show.qml"
+
+style:
+   SidebarBackground:    "#1b1b1b"
+   SidebarText:          "#e0e0e0"
+   SidebarTextCurrent:   "#fbfbfb"
+   SidebarBackgroundCurrent: "#d70a53"
+
+slideshowAPI: 2

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Install SidSpin
+GenericName=SidSpin Installer
+Exec=sidspin-install
+Comment=Install SidSpin to your disk
+Keywords=calamares;sidspin;install;debian;installer;
+Icon=system-software-install
+Terminal=false
+Categories=Qt;System;
+StartupWMClass=calamares
+StartupNotify=True

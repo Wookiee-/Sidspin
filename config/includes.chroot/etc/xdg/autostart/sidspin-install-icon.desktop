@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=SidSpin Desktop Icon
+Exec=sidspin-desktop-icon
+StartupNotify=false
+NoDisplay=true
+
+X-GNOME-Autostart-Phase=Initialization
+X-KDE-autostart-phase=1
