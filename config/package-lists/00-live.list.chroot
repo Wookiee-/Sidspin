@@ -10,7 +10,8 @@ live-config
 live-config-systemd
 user-setup
 sudo
-policykit-1
+polkitd
+pkexec
 
 # --- KDE Plasma (the desktop you land in) ----------------------------------
 # kde-plasma-desktop pulls in kde-baseapps (dolphin, konsole, ...),

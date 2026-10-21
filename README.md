@@ -70,16 +70,24 @@ These are the live-build quirks that this build works around:
 
 1. sid has no `live-boot-amd64` → `LB_LINUX_PACKAGES="linux-image"`.
 2. Package lists must be flat in `config/package-lists/` (no subdirs).
-3. `chroot_hooks` only runs when `config/hooks/normal/` **and**
+3. The lists are named `*.list.chroot`, not `*.list`. A plain `*.list` is
+   also installed into the ISO's `/pool`, which adds ~1.2 GB of `.deb`
+   files we never install from. A `*.list.chroot` only goes into the
+   chroot.
+4. `chroot_hooks` only runs when `config/hooks/normal/` **and**
    `config/hooks/live/` both contain hooks.
-4. `config/includes.chroot/` is copied after the packages are installed, so
-   it can override files the packages ship.
-5. `lb config` slimmed options (no `--allow-root`/`--tmpdir`/`--variant`).
-6. Debian's `calamares-settings-debian` references modules (`dpkg-unsafe-io`,
+5. `config/includes.chroot/` is copied after the packages are installed, so
+   it can override files the packages ship. `lb config` does not create
+   that directory, and the empty `includes.chroot_after_packages/` it does
+   create takes precedence over it — both have to be handled.
+6. `lb config` slimmed options (no `--allow-root`/`--tmpdir`/`--variant`).
+7. Debian's `calamares-settings-debian` references modules (`dpkg-unsafe-io`,
    `sources-media`, `sources-final`, `bootloader-config`) that are **not**
    shipped in sid's `calamares` package. The sequence in
    `config/includes.chroot/etc/calamares/settings.conf` only uses modules
    that exist.
+8. `policykit-1` was split up; sid has `polkitd` and a separate `pkexec`
+   package.
 
 ## Not verified
 

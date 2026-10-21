@@ -65,10 +65,11 @@ lb config \
     2>&1 | tail -3
 
 # ----------------------------------------------------------- package lists
-# Package lists must be flat in config/package-lists/ (sid's live-build
-# ignores lists in subdirectories).
+# The lists are named *.list.chroot on purpose: live-build installs those
+# into the chroot but does not copy the .debs into the ISO's /pool, which
+# would add over a gigabyte of dead weight to the image.
 mkdir -p "$BUILD/config/package-lists"
-cp "$CONF/package-lists/"*.list "$BUILD/config/package-lists/"
+cp "$CONF/package-lists/"*.list.chroot "$BUILD/config/package-lists/"
 
 # ------------------------------------------------------------------- hooks
 # live-build only runs config/hooks/normal/*.hook.chroot when there is at
@@ -100,7 +101,12 @@ fi
 
 # ------------------------------------------------------------------- build
 log "building live ISO (bootstraps sid, this takes a while)"
-lb build 2>&1 | tail -5
+log "full build log: $BUILD/build.log"
+lb build > "$BUILD/build.log" 2>&1 || {
+    tail -30 "$BUILD/build.log" >&2
+    die "lb build failed (see $BUILD/build.log)"
+}
+tail -5 "$BUILD/build.log"
 
 ISO="$BUILD/live-image-amd64.hybrid.iso"
 [ -f "$ISO" ] || die "lb build produced no ISO"
