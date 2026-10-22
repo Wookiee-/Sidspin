@@ -15,6 +15,8 @@ you actually want: KDE Plasma, GNOME, XFCE, MATE, LXQt or Cinnamon.
   GRUB.
 - **Desktop chooser**: the installer asks which desktop to install and
   points the display manager at it.
+- **Own UI**: the welcome page and the desktop chooser are our own QML,
+  loaded from the branding directory, in SidSpin's colours.
 - **Partition editors**: GParted and KDE Partition Manager are in the live
   session, so you can lay out or shrink the disk yourself before you
   install.
@@ -29,13 +31,34 @@ config/package-lists/10-installer.list.chroot  installer + partition editors
 config/includes.chroot/               copied into the live image
     etc/calamares/settings.conf       installer flow
     etc/calamares/modules/            module configuration
-    etc/calamares/branding/sidspin/   branding and slideshow
+    etc/calamares/branding/sidspin/   branding, slideshow, our QML pages
     etc/sddm.conf.d/                  live session auto-login
     usr/bin/sidspin-install           launcher for the installer
     usr/bin/sidspin-install-de        installs the chosen desktop
 config/hooks/normal/                  chroot hooks (locale, plymouth, ...)
 config/hooks/live/                    required for the normal hooks to run
 ```
+
+## Custom pages
+
+Calamares can load a view module's QML from the branding directory
+instead of its built-in copy, using two keys in the module's config:
+
+```yaml
+qmlSearch: branding
+qmlFilename: /etc/calamares/branding/sidspin/welcome.qml
+```
+
+We use that for two pages:
+
+| Module | File | What it does |
+|---|---|---|
+| `welcomeq` | `branding/sidspin/welcome.qml` | Our own welcome page: what SidSpin is, and the three steps of the install |
+| `packagechooserq` | `branding/sidspin/chooser.qml` | The desktop chooser, with a description per desktop |
+
+The chooser writes the chosen id to GlobalStorage under
+`packagechooser_packagechooserq`, which the `shellprocess` module expands
+into the argument for `sidspin-install-de`.
 
 ## Build
 

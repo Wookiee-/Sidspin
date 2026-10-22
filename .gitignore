@@ -1,3 +1,7 @@
 # SidSpin build artifacts (not tracked)
 build/
 *.iso
+
+# Local installers that are staged into the image at build time
+*.sh
+!scripts/*.sh
