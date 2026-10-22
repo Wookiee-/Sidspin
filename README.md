@@ -115,6 +115,15 @@ These are the live-build quirks that this build works around:
 8. `policykit-1` was split up; sid has `polkitd` and a separate `pkexec`
    package.
 
+## Verified
+
+- The ISO builds and boots; the live session starts Plasma and logs in.
+- The Calamares pages load with our own QML (welcome and desktop chooser),
+  tested against Calamares 3.4.2 under Xvfb.
+- Clicking a desktop updates `config.packageChoice`, which is what the
+  `shellprocess` module expands into the argument for
+  `sidspin-install-de`.
+
 ## Not verified
 
 - Full install to a booted target (untested)
