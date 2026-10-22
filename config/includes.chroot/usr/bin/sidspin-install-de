@@ -87,8 +87,8 @@ case "$DE" in
         DE_REMOVE="$GNOME_PKGS $XFCE_PKGS $MATE_PKGS $LXQT_PKGS $CINNAMON_PKGS"
         if [ "$PROFILE" = "minimal" ]; then
             # The shell without the application suite that came with it.
-            DE_PACKAGES="plasma-desktop kwin-x11 sddm plasma-nm xdg-desktop-portal-kde"
-            DE_REMOVE="$DE_REMOVE kde-baseapps"
+            DE_PACKAGES="plasma-desktop plasma-workspace kwin-x11 sddm plasma-nm xdg-desktop-portal-kde"
+            DE_REMOVE="$DE_REMOVE kde-plasma-desktop kde-baseapps"
         else
             DE_PACKAGES="kde-plasma-desktop kwin-x11 sddm plasma-nm xdg-desktop-portal-kde"
         fi
@@ -128,7 +128,7 @@ case "$DE" in
         DE_SERVICE="sddm"
         DE_REMOVE="$PLASMA_PKGS $GNOME_PKGS $XFCE_PKGS $MATE_PKGS $CINNAMON_PKGS"
         if [ "$PROFILE" = "minimal" ]; then
-            DE_PACKAGES="lxqt-core lxqt-panel sddm"
+            DE_PACKAGES="lxqt-core lxqt-panel qterminal sddm"
         else
             DE_PACKAGES="task-lxqt-desktop sddm"
         fi
