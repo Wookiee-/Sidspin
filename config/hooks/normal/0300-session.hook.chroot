@@ -11,6 +11,12 @@ chmod 0755 /usr/bin/sidspin-install \
 # SDDM needs to be enabled for the live session to start.
 systemctl enable sddm.service 2>/dev/null || true
 
+# calamares-settings-debian drops its own autostart entry in, which puts
+# an "Install Debian" icon next to ours on the desktop.  One icon, ours.
+rm -f /etc/xdg/autostart/calamares-desktop-icon.desktop
+rm -f /usr/share/applications/calamares-install-debian.desktop
+rm -f /usr/bin/add-calamares-desktop-icon
+
 # Let the live user run the installer without a password prompt.
 mkdir -p /usr/share/polkit-1/rules.d
 cat > /usr/share/polkit-1/rules.d/sidspin-live.rules <<'EOF'

@@ -15,14 +15,17 @@ you actually want: KDE Plasma, GNOME, XFCE, MATE, LXQt or Cinnamon.
   GRUB.
 - **Desktop chooser**: the installer asks which desktop to install and
   points the display manager at it.
+- **Partition editors**: GParted and KDE Partition Manager are in the live
+  session, so you can lay out or shrink the disk yourself before you
+  install.
 - **sid**: tracks Debian unstable.
 
 ## Layout
 
 ```
 scripts/build.sh                      live-build orchestrator
-config/package-lists/00-live.list     live session (KDE Plasma + apps)
-config/package-lists/10-installer.list  installer-only dependencies
+config/package-lists/00-live.list.chroot   live session (KDE Plasma + apps)
+config/package-lists/10-installer.list.chroot  installer + partition editors
 config/includes.chroot/               copied into the live image
     etc/calamares/settings.conf       installer flow
     etc/calamares/modules/            module configuration

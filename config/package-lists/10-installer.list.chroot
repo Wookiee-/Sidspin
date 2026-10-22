@@ -16,3 +16,8 @@ f2fs-tools
 # udev, needed so the installer sees disks in the live session.
 udisks2
 udev
+
+# Partition editors.  Resize or lay out the disk yourself first, then point
+# the installer at the partitions you made.
+gparted
+partitionmanager
