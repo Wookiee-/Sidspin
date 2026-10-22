@@ -54,11 +54,40 @@ We use that for two pages:
 | Module | File | What it does |
 |---|---|---|
 | `welcomeq` | `branding/sidspin/welcome.qml` | Our own welcome page: what SidSpin is, and the three steps of the install |
-| `packagechooserq` | `branding/sidspin/chooser.qml` | The desktop chooser, with a description per desktop |
+| `packagechooserq` | `branding/sidspin/chooser.qml` | The desktop chooser, with a description per desktop and a full/minimal toggle |
 
-The chooser writes the chosen id to GlobalStorage under
-`packagechooser_packagechooserq`, which the `shellprocess` module expands
-into the argument for `sidspin-install-de`.
+The chooser writes the chosen desktop and profile to GlobalStorage under
+`packagechooser_packagechooserq`, as `<desktop>:<profile>`, which the
+`shellprocess` module expands into the argument for
+`sidspin-install-de`.
+
+## Desktops and profiles
+
+The installer asks for two things: which desktop, and how much of it.
+
+| Desktop | Minimal | Full |
+|---|---|---|
+| KDE Plasma | `plasma-desktop` | `kde-plasma-desktop` |
+| GNOME | `gnome-core` | `task-gnome-desktop` |
+| XFCE | `xfce4` | `task-xfce-desktop` |
+| MATE | `mate-desktop-environment-core` | `task-mate-desktop` |
+| LXQt | `lxqt-core` | `task-lxqt-desktop` |
+| Cinnamon | `cinnamon` | `task-cinnamon-desktop` |
+
+Roughly how much each profile weighs:
+
+| Desktop | Minimal | Full |
+|---|---|---|
+| GNOME | ~390 MB | ~500 MB |
+| XFCE | ~85 MB | ~280 MB |
+| MATE | ~290 MB | ~620 MB |
+| LXQt | ~150 MB | ~340 MB |
+| Cinnamon | ~200 MB | ~860 MB |
+| KDE Plasma | ~1.8 GB | ~1.8 GB |
+
+KDE Plasma is the odd one out: the live image ships it, so the target
+already has the shell, and the difference between the two profiles is
+only the application suite that comes with it.
 
 ## Build
 
@@ -133,7 +162,5 @@ These are the live-build quirks that this build works around:
 
 ## Planned
 
-- Per-desktop **minimal** and **full** profiles (currently every desktop
-  installs its Debian task package, i.e. the full set).
 - Optional **extras** on the installer page (office suite, media players,
-  and so on) on top of the chosen desktop.
+  and so on) on top of the chosen desktop and profile.

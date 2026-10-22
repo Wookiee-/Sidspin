@@ -27,29 +27,44 @@ Item
 {
     id: chooser
 
+    // The two choices, published to the installer as "<desktop>:<profile>".
+    property string currentDe: "kde-plasma"
+    property string currentProfile: "full"
+
+    function publish() {
+        config.packageChoice = chooser.currentDe + ":" + chooser.currentProfile
+    }
+
+    // The radio buttons keep their own state; only the initial state comes
+    // from the configuration.  (Binding "checked" to currentDe would make
+    // the button undo the very click that changed currentDe.)
+    function selectIn( buttons, value ) {
+        for ( var i = 0; i < buttons.length; i++ )
+            buttons[ i ].checked = ( buttons[ i ].choiceId === value )
+    }
+
+    Component.onCompleted: {
+        var parts = ( config.packageChoice || "kde-plasma:full" ).split( ":" )
+        if ( parts.length > 0 && parts[ 0 ] !== "" )
+            chooser.currentDe = parts[ 0 ]
+        if ( parts.length > 1 && parts[ 1 ] !== "" )
+            chooser.currentProfile = parts[ 1 ]
+
+        chooser.selectIn( group.buttons, chooser.currentDe )
+        chooser.selectIn( profileGroup.buttons, chooser.currentProfile )
+    }
+
     ColumnLayout {
         anchors.centerIn: parent
-        width: parent.width * 0.85
+        width: parent.width * 0.88
         spacing: Kirigami.Units.largeSpacing
 
         Text {
             Layout.alignment: Qt.AlignHCenter
             text: qsTr("Which desktop do you want?")
-            font.pointSize: 18
+            font.pointSize: 17
             font.bold: true
             color: Kirigami.Theme.textColor
-        }
-
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            Layout.bottomMargin: Kirigami.Units.largeSpacing
-            text: qsTr("It is downloaded from the Debian archive during the installation.")
-            font.pointSize: 11
-            color: Kirigami.Theme.textColor
-        }
-
-        ButtonGroup {
-            id: group
         }
 
         Repeater {
@@ -88,7 +103,7 @@ Item
 
             Rectangle {
                 Layout.fillWidth: true
-                implicitHeight: 58
+                implicitHeight: 44
                 radius: 6
                 color: Kirigami.Theme.alternateBackgroundColor
                 border.width: 1
@@ -96,67 +111,134 @@ Item
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 14
-                    anchors.rightMargin: 14
+                    anchors.leftMargin: 10
+                    anchors.rightMargin: 12
                     spacing: Kirigami.Units.largeSpacing
 
                     RadioButton {
                         id: radio
-                        checked: modelData.id === "kde-plasma"
+                        property string choiceId: modelData.id
+                        text: modelData.name
+                        font.bold: true
+                        font.pointSize: 12
+                        Kirigami.Theme.highlightColor: "#d70a53"
+                        Kirigami.Theme.textColor: Kirigami.Theme.textColor
                         ButtonGroup.group: group
-                        onClicked: config.packageChoice = modelData.id
-
-                        contentItem: Text {
-                            text: radio.text
-                            font.pointSize: 13
-                            font.bold: true
-                            color: Kirigami.Theme.textColor
-                            leftPadding: radio.indicator.width + 6
-                            verticalAlignment: Text.AlignVCenter
-                        }
-
-                        indicator: Rectangle {
-                            implicitWidth: 18
-                            implicitHeight: 18
-                            x: 0
-                            y: radio.topPadding + radio.availableHeight / 2 - height / 2
-                            radius: width / 2
-                            color: radio.checked ? "#d70a53" : "transparent"
-                            border.width: 2
-                            border.color: radio.checked ? "#d70a53" : "#9a9a9a"
-
-                            Rectangle {
-                                anchors.centerIn: parent
-                                width: 7
-                                height: 7
-                                radius: width / 2
-                                color: "white"
-                                visible: radio.checked
-                            }
-                        }
                     }
 
-                    ColumnLayout {
+                    Text {
                         Layout.fillWidth: true
-                        spacing: 0
+                        text: modelData.description
+                        wrapMode: Text.WordWrap
+                        font.pointSize: 9
+                        color: Kirigami.Theme.textColor
+                    }
+                }
 
-                        Text {
-                            text: modelData.name
-                            font.pointSize: 13
-                            font.bold: true
-                            color: Kirigami.Theme.textColor
+                // The whole card is one click target.  It sits on top of
+                // the radio button, whose own indicator does not get
+                // mouse events of its own.
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        radio.checked = true
+                        chooser.currentDe = radio.choiceId
+                        chooser.publish()
+                    }
+                }
+            }
+        }
+
+        // How much of the desktop to install.
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: 52
+            radius: 6
+            color: Kirigami.Theme.alternateBackgroundColor
+            border.width: 1
+            border.color: fullRadio.checked || minimalRadio.checked ? "#d70a53" : Kirigami.Theme.backgroundColor
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 12
+                anchors.rightMargin: 12
+                spacing: Kirigami.Units.largeSpacing * 2
+
+                Text {
+                    Layout.fillWidth: true
+                    text: qsTr("How much of it?")
+                    font.pointSize: 12
+                    font.bold: true
+                    color: Kirigami.Theme.textColor
+                }
+
+                Item {
+                    Layout.preferredWidth: 80
+                    Layout.preferredHeight: 32
+
+                    RadioButton {
+                        id: fullRadio
+                        property string choiceId: "full"
+                        text: qsTr("Full")
+                        font.pointSize: 12
+                        Kirigami.Theme.highlightColor: "#d70a53"
+                        Kirigami.Theme.textColor: Kirigami.Theme.textColor
+                        ButtonGroup.group: profileGroup
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            fullRadio.checked = true
+                            chooser.currentProfile = "full"
+                            chooser.publish()
                         }
+                    }
+                }
 
-                        Text {
-                            Layout.fillWidth: true
-                            text: modelData.description
-                            wrapMode: Text.WordWrap
-                            font.pointSize: 10
-                            color: Kirigami.Theme.textColor
+                Item {
+                    Layout.preferredWidth: 100
+                    Layout.preferredHeight: 32
+
+                    RadioButton {
+                        id: minimalRadio
+                        property string choiceId: "minimal"
+                        text: qsTr("Minimal")
+                        font.pointSize: 12
+                        Kirigami.Theme.highlightColor: "#d70a53"
+                        Kirigami.Theme.textColor: Kirigami.Theme.textColor
+                        ButtonGroup.group: profileGroup
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            minimalRadio.checked = true
+                            chooser.currentProfile = "minimal"
+                            chooser.publish()
                         }
                     }
                 }
             }
         }
+
+        Text {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            text: qsTr("<b>Full</b> installs the desktop with its usual applications and tools.<br/>" +
+                       "<b>Minimal</b> installs the desktop on its own — add the rest later with your package manager.")
+            font.pointSize: 9
+            color: Kirigami.Theme.textColor
+        }
+    }
+
+    ButtonGroup {
+        id: group
+    }
+
+    ButtonGroup {
+        id: profileGroup
     }
 }

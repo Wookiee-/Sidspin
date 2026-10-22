@@ -3,7 +3,11 @@
 #
 # Calamares runs this inside the target system (chroot):
 #
-#     sidspin-install-de <desktop-id>
+#     sidspin-install-de <desktop-id>[:<profile>]
+#
+# <desktop-id> is one of kde-plasma, gnome, xfce, mate, lxqt, cinnamon.
+# <profile> is "full" (the desktop with its usual applications) or
+# "minimal" (the desktop on its own).  It defaults to "full".
 #
 # The live image ships KDE Plasma, so the target already contains it.  When
 # a different desktop is picked we install it, remove the desktops that are
@@ -14,7 +18,13 @@
 
 set -u
 
-DE="${1:-kde-plasma}"
+ARG="${1:-kde-plasma:full}"
+DE="${ARG%%:*}"
+PROFILE="${ARG##*:}"
+if [ "$PROFILE" = "$DE" ]; then
+    # No ":" in the argument, so no profile was given.
+    PROFILE="full"
+fi
 
 log() { echo "sidspin-install-de: $*"; }
 
@@ -61,79 +71,107 @@ set_display_manager() {
     log "display manager: $binary ($service)"
 }
 
-# Desktops that came with the live image and are not wanted any more.
-PLASMA_PACKAGES="kde-plasma-desktop plasma-desktop plasma-workspace plasma-nm kwin-x11 xdg-desktop-portal-kde kde-baseapps"
-OTHER_PACKAGES="task-gnome-desktop gdm3 task-xfce-desktop task-mate-desktop task-lxqt-desktop task-cinnamon-desktop lightdm"
+# The packages that make up each desktop.  The first of each pair is the
+# bare desktop, the second is Debian's "install this desktop" task.
+PLASMA_PKGS="kde-plasma-desktop kde-baseapps plasma-desktop plasma-workspace plasma-nm kwin-x11 xdg-desktop-portal-kde"
+GNOME_PKGS="gnome-core task-gnome-desktop gdm3"
+XFCE_PKGS="xfce4 xfce4-terminal task-xfce-desktop lightdm"
+MATE_PKGS="mate-desktop-environment-core mate-terminal task-mate-desktop"
+LXQT_PKGS="lxqt-core lxqt-panel task-lxqt-desktop"
+CINNAMON_PKGS="cinnamon task-cinnamon-desktop"
 
 case "$DE" in
     kde-plasma)
-        DE_PACKAGES="kde-plasma-desktop kwin-x11 sddm plasma-nm xdg-desktop-portal-kde"
-        DE_REMOVE="$OTHER_PACKAGES"
         DE_DM="/usr/bin/sddm"
         DE_SERVICE="sddm"
+        DE_REMOVE="$GNOME_PKGS $XFCE_PKGS $MATE_PKGS $LXQT_PKGS $CINNAMON_PKGS"
+        if [ "$PROFILE" = "minimal" ]; then
+            # The shell without the application suite that came with it.
+            DE_PACKAGES="plasma-desktop kwin-x11 sddm plasma-nm xdg-desktop-portal-kde"
+            DE_REMOVE="$DE_REMOVE kde-baseapps"
+        else
+            DE_PACKAGES="kde-plasma-desktop kwin-x11 sddm plasma-nm xdg-desktop-portal-kde"
+        fi
         ;;
     gnome)
-        DE_PACKAGES="task-gnome-desktop gdm3"
-        DE_REMOVE="$PLASMA_PACKAGES sddm $OTHER_PACKAGES"
         DE_DM="/usr/bin/gdm3"
         DE_SERVICE="gdm3"
+        DE_REMOVE="$PLASMA_PKGS $XFCE_PKGS $MATE_PKGS $LXQT_PKGS $CINNAMON_PKGS"
+        if [ "$PROFILE" = "minimal" ]; then
+            DE_PACKAGES="gnome-core gdm3"
+        else
+            DE_PACKAGES="task-gnome-desktop gdm3"
+        fi
         ;;
     xfce)
-        DE_PACKAGES="task-xfce-desktop lightdm"
-        DE_REMOVE="$PLASMA_PACKAGES sddm gdm3"
         DE_DM="/usr/sbin/lightdm"
         DE_SERVICE="lightdm"
+        DE_REMOVE="$PLASMA_PKGS $GNOME_PKGS $MATE_PKGS $LXQT_PKGS $CINNAMON_PKGS"
+        if [ "$PROFILE" = "minimal" ]; then
+            DE_PACKAGES="xfce4 xfce4-terminal lightdm"
+        else
+            DE_PACKAGES="task-xfce-desktop lightdm"
+        fi
         ;;
     mate)
-        DE_PACKAGES="task-mate-desktop lightdm"
-        DE_REMOVE="$PLASMA_PACKAGES sddm gdm3"
         DE_DM="/usr/sbin/lightdm"
         DE_SERVICE="lightdm"
+        DE_REMOVE="$PLASMA_PKGS $GNOME_PKGS $XFCE_PKGS $LXQT_PKGS $CINNAMON_PKGS"
+        if [ "$PROFILE" = "minimal" ]; then
+            DE_PACKAGES="mate-desktop-environment-core mate-terminal lightdm"
+        else
+            DE_PACKAGES="task-mate-desktop lightdm"
+        fi
         ;;
     lxqt)
-        DE_PACKAGES="task-lxqt-desktop sddm"
-        DE_REMOVE="$PLASMA_PACKAGES gdm3 lightdm"
         DE_DM="/usr/bin/sddm"
         DE_SERVICE="sddm"
+        DE_REMOVE="$PLASMA_PKGS $GNOME_PKGS $XFCE_PKGS $MATE_PKGS $CINNAMON_PKGS"
+        if [ "$PROFILE" = "minimal" ]; then
+            DE_PACKAGES="lxqt-core lxqt-panel sddm"
+        else
+            DE_PACKAGES="task-lxqt-desktop sddm"
+        fi
         ;;
     cinnamon)
-        DE_PACKAGES="task-cinnamon-desktop lightdm"
-        DE_REMOVE="$PLASMA_PACKAGES sddm gdm3"
         DE_DM="/usr/sbin/lightdm"
         DE_SERVICE="lightdm"
+        DE_REMOVE="$PLASMA_PKGS $GNOME_PKGS $XFCE_PKGS $MATE_PKGS $LXQT_PKGS"
+        if [ "$PROFILE" = "minimal" ]; then
+            DE_PACKAGES="cinnamon lightdm"
+        else
+            DE_PACKAGES="task-cinnamon-desktop lightdm"
+        fi
         ;;
     *)
         log "unknown desktop '$DE', keeping KDE Plasma"
+        DE="kde-plasma"
+        PROFILE="full"
         DE_PACKAGES="kde-plasma-desktop kwin-x11 sddm plasma-nm xdg-desktop-portal-kde"
-        DE_REMOVE=""
+        DE_REMOVE="$GNOME_PKGS $XFCE_PKGS $MATE_PKGS $LXQT_PKGS $CINNAMON_PKGS"
         DE_DM="/usr/bin/sddm"
         DE_SERVICE="sddm"
-        DE="kde-plasma"
         ;;
 esac
 
-log "installing desktop: $DE"
+log "installing desktop: $DE ($PROFILE)"
 
 # The package module already refreshed the package lists, but the target
 # may have been offline for a moment.
 DEBIAN_FRONTEND=noninteractive apt-get -q -y update >/dev/null 2>&1 || true
 
-install_packages $DE_PACKAGES
+# Remove the desktops that are not wanted first, so that installing the
+# new one cannot be undone by the removal.
+purge_packages $DE_REMOVE
 
-removed=0
-if [ -n "$DE_REMOVE" ]; then
-    purge_packages $DE_REMOVE
-    removed=1
-fi
+install_packages $DE_PACKAGES
 
 # Clean up whatever the removed desktops left behind (the Plasma stack is
 # pulled in as a dependency of kde-plasma-desktop, so it only goes away
 # once the metapackage is gone).
-if [ "$removed" = "1" ]; then
-    log "cleaning up unused packages"
-    DEBIAN_FRONTEND=noninteractive apt-get -q -y autoremove >/dev/null 2>&1 \
-        || log "warning: autoremove failed"
-fi
+log "cleaning up unused packages"
+DEBIAN_FRONTEND=noninteractive apt-get -q -y autoremove >/dev/null 2>&1 \
+    || log "warning: autoremove failed"
 
 set_display_manager "$DE_DM" "$DE_SERVICE"
 
@@ -151,5 +189,5 @@ Session=plasma.desktop
 EOF
 fi
 
-echo "$DE" > /etc/sidspin-desktop
-log "done: $DE"
+echo "$DE:$PROFILE" > /etc/sidspin-desktop
+log "done: $DE ($PROFILE)"
