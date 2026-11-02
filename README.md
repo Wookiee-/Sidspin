@@ -28,6 +28,7 @@ you actually want: KDE Plasma, GNOME, XFCE, MATE, LXQt or Cinnamon.
 scripts/build.sh                      live-build orchestrator
 config/package-lists/00-live.list.chroot   live session (KDE Plasma + apps)
 config/package-lists/10-installer.list.chroot  installer + partition editors
+config/bootloaders/grub-pc/            our boot menu (no jingle, live kernel paths)
 config/includes.chroot/               copied into the live image
     etc/calamares/settings.conf       installer flow
     etc/calamares/modules/            module configuration
@@ -119,6 +120,26 @@ sudo SIDSPIN_MIRROR=https://deb.debian.org/debian ./scripts/build.sh
 The target starts as a copy of the live session, so KDE Plasma is already
 present. Picking a different desktop installs it and purges Plasma.
 
+## Boot menu and GRUB
+
+The boot menu is built from our copies of live-build's GRUB templates in
+`config/bootloaders/grub-pc/`:
+
+- `config.cfg` is the stock template **with the `play` start-up jingle
+  removed** — the two-tone beep through the PC speaker when the USB loads.
+- `grub.cfg` is our own menu. Its entries point at the unversioned
+  `/live/vmlinuz` and `/live/initrd.img`, so the menu always boots the
+  newest kernel in the image and never goes stale, and it waits 6 seconds
+  before booting the first entry.
+
+On an installed system GRUB is put on the disk by the `bootloader` module
+(see the `bootloader.conf` workaround above) and `grub.cfg` is generated
+from what is actually installed. `sidspin-install-de` installs
+`linux-image-amd64` before that runs, so the newest kernel available in
+sid at install time is on the disk, listed first (`GRUB_DEFAULT: 0`) and
+the one that boots. The kernel the system was installed with is kept as a
+fallback.
+
 ## sid workarounds
 
 These are the live-build quirks that this build works around:
@@ -143,6 +164,12 @@ These are the live-build quirks that this build works around:
    that exist.
 8. `policykit-1` was split up; sid has `polkitd` and a separate `pkexec`
    package.
+9. The `bootloader` module of Calamares requires a configuration file with
+   `grubInstall`/`grubMkconfig`/`grubCfg` and friends, and neither sid's
+   `calamares` nor `calamares-settings-debian` ships one. Without it the
+   module bails out ("bootloader not installed") on EFI systems and
+   crashes on BIOS ones. We provide
+   `etc/calamares/modules/bootloader.conf`.
 
 ## Verified
 

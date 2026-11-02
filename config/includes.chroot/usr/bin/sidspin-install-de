@@ -166,6 +166,14 @@ purge_packages $DE_REMOVE
 
 install_packages $DE_PACKAGES
 
+# Bring the kernel up to the newest one Debian ships right now, so that
+# GRUB — generated a moment later by the "bootloader" module — lists and
+# boots the latest kernel.  The kernel the system was installed with is
+# explicitly installed too: that marks it manual, so the autoremove below
+# keeps it around as a fallback if the newest kernel ever misbehaves.
+log "updating the kernel to the newest available"
+install_packages "linux-image-amd64" "linux-image-$(uname -r)"
+
 # Clean up whatever the removed desktops left behind (the Plasma stack is
 # pulled in as a dependency of kde-plasma-desktop, so it only goes away
 # once the metapackage is gone).
