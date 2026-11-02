@@ -84,6 +84,16 @@ for hook in "$CONF/hooks/live/"*.hook.chroot; do
     install -m 755 "$hook" "$BUILD/config/hooks/live/$(basename "$hook")"
 done
 
+# ---------------------------------------------------------------- bootloader
+# Our own GRUB menu: the PC-speaker start-up jingle removed and the menu
+# entries pointing at the unversioned /live/vmlinuz. The dir has to be
+# staged like the other config pieces — binary_grub_cfg looks for
+# config/bootloaders/grub-pc/ relative to the build directory.
+if [ -d "$CONF/bootloaders" ]; then
+    mkdir -p "$BUILD/config/bootloaders"
+    cp -a "$CONF/bootloaders/." "$BUILD/config/bootloaders/"
+fi
+
 # ---------------------------------------------------------------- includes
 # Calamares settings, branding, the desktop chooser and the helper scripts
 # land in the live image here.
